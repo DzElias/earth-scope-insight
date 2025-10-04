@@ -4,12 +4,14 @@ import WeatherMap from "@/components/WeatherMap";
 import WeatherStats from "@/components/WeatherStats";
 import DataDownload from "@/components/DataDownload";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { DateSelector } from "@/components/DateSelector";
 import { useTranslation } from "react-i18next";
 import { Satellite } from "lucide-react";
 import "../i18n/config";
 
 const Index = () => {
   const [selectedArea, setSelectedArea] = useState<LatLngBounds | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { t } = useTranslation();
 
   return (
@@ -44,8 +46,9 @@ const Index = () => {
 
           {/* Stats Sidebar - Takes 1 column */}
           <div className="space-y-4 h-full flex flex-col">
+            <DateSelector date={selectedDate} onDateChange={setSelectedDate} />
             <div className="flex-1 overflow-hidden">
-              <WeatherStats hasArea={selectedArea !== null} />
+              <WeatherStats hasArea={selectedArea !== null} selectedDate={selectedDate} />
             </div>
             <DataDownload hasData={selectedArea !== null} />
           </div>

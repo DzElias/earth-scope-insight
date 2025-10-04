@@ -3,12 +3,14 @@ import { useTranslation } from "react-i18next";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { Cloud, Thermometer, Wind, Droplets, AlertCircle, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 interface WeatherStatsProps {
   hasArea: boolean;
+  selectedDate?: Date;
 }
 
-const WeatherStats = ({ hasArea }: WeatherStatsProps) => {
+const WeatherStats = ({ hasArea, selectedDate }: WeatherStatsProps) => {
   const { t } = useTranslation();
 
   // Mock data for demonstration
@@ -30,6 +32,8 @@ const WeatherStats = ({ hasArea }: WeatherStatsProps) => {
     { month: 'Jun', rain: 82 },
   ];
 
+  const dateString = selectedDate ? format(selectedDate, "PPP") : t('selectDate');
+
   if (!hasArea) {
     return (
       <Card className="h-full flex items-center justify-center bg-gradient-to-br from-card to-muted/20">
@@ -43,6 +47,16 @@ const WeatherStats = ({ hasArea }: WeatherStatsProps) => {
 
   return (
     <div className="space-y-4 h-full overflow-y-auto pr-2">
+      {/* Date Display Card */}
+      <Card className="bg-gradient-to-br from-card to-primary/5">
+        <CardContent className="pt-6">
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground mb-1">{t('predictionFor')}</p>
+            <p className="text-2xl font-bold text-primary">{dateString}</p>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="bg-gradient-to-br from-card to-primary/5">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
