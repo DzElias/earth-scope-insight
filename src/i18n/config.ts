@@ -39,6 +39,8 @@ const resources = {
       strongWind: "Strong Wind",
       poorAirQuality: "Poor Air Quality",
       instructions: "Click on the map to draw a boundary area and view weather statistics",
+      clickPoint: "Click {{count}} more point(s) to complete the polygon",
+      areaSelected: "Area selected! Viewing weather data...",
     }
   },
   es: {
@@ -78,6 +80,8 @@ const resources = {
       strongWind: "Viento Fuerte",
       poorAirQuality: "Mala Calidad del Aire",
       instructions: "Haz clic en el mapa para dibujar un área y ver las estadísticas meteorológicas",
+      clickPoint: "Haz clic {{count}} punto(s) más para completar el polígono",
+      areaSelected: "¡Área seleccionada! Viendo datos meteorológicos...",
     }
   }
 };
