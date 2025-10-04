@@ -1,24 +1,26 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Rectangle, useMapEvents, useMap } from "react-leaflet";
-import { LatLngBounds, LatLng } from "leaflet";
+import type { LatLngBounds, LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Card } from "@/components/ui/card";
-import { useTranslation } from "react-i18next";
 
 interface WeatherMapProps {
   onAreaSelect: (bounds: LatLngBounds | null) => void;
 }
 
-function DrawRectangle({ onAreaSelect }: { onAreaSelect: (bounds: LatLngBounds | null) => void }) {
+function DrawRectangleHandler({ onAreaSelect }: { onAreaSelect: (bounds: LatLngBounds | null) => void }) {
   const [startPoint, setStartPoint] = useState<LatLng | null>(null);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
   
   useMapEvents({
     click(e) {
+      const L = window.L;
+      if (!L) return;
+      
       if (!startPoint) {
         setStartPoint(e.latlng);
       } else {
-        const newBounds = new LatLngBounds(startPoint, e.latlng);
+        const newBounds = new L.LatLngBounds(startPoint, e.latlng);
         setBounds(newBounds);
         onAreaSelect(newBounds);
         setStartPoint(null);
@@ -26,18 +28,22 @@ function DrawRectangle({ onAreaSelect }: { onAreaSelect: (bounds: LatLngBounds |
     },
   });
 
-  return bounds ? <Rectangle bounds={bounds} pathOptions={{ color: '#3b82f6', weight: 2 }} /> : null;
+  if (!bounds) return null;
+  
+  return <Rectangle bounds={bounds} pathOptions={{ color: '#3b82f6', weight: 2 }} />;
 }
 
-function LocationMarker() {
+function LocationHandler() {
   const map = useMap();
 
   useEffect(() => {
+    if (!map) return;
+    
     map.locate({ setView: true, maxZoom: 10 });
     
-    const onLocationFound = (e: any) => {
+    function onLocationFound(e: any) {
       console.log('Location found:', e.latlng);
-    };
+    }
     
     map.on('locationfound', onLocationFound);
     
@@ -49,26 +55,8 @@ function LocationMarker() {
   return null;
 }
 
-function MapComponents({ onAreaSelect }: { onAreaSelect: (bounds: LatLngBounds | null) => void }) {
-  return (
-    <>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <LocationMarker />
-      <DrawRectangle onAreaSelect={onAreaSelect} />
-    </>
-  );
-}
-
-const WeatherMap = ({ onAreaSelect }: WeatherMapProps) => {
+export default function WeatherMap({ onAreaSelect }: WeatherMapProps) {
   const [key, setKey] = useState(0);
-
-  const handleClearArea = () => {
-    onAreaSelect(null);
-    setKey(prev => prev + 1);
-  };
 
   return (
     <Card className="h-full overflow-hidden">
@@ -76,13 +64,16 @@ const WeatherMap = ({ onAreaSelect }: WeatherMapProps) => {
         key={key}
         center={[20, 0]}
         zoom={2}
-        className="h-full w-full"
-        style={{ minHeight: '500px' }}
+        scrollWheelZoom={true}
+        style={{ height: '100%', width: '100%', minHeight: '500px' }}
       >
-        <MapComponents onAreaSelect={onAreaSelect} />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <LocationHandler />
+        <DrawRectangleHandler onAreaSelect={onAreaSelect} />
       </MapContainer>
     </Card>
   );
-};
-
-export default WeatherMap;
+}
