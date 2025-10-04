@@ -8,13 +8,13 @@ interface WeatherMapProps {
   onAreaSelect: (bounds: LatLngBounds | null) => void;
 }
 
-function DrawRectangleHandler({ onAreaSelect }: { onAreaSelect: (bounds: LatLngBounds | null) => void }) {
+const DrawRectangleComponent = ({ onAreaSelect }: { onAreaSelect: (bounds: LatLngBounds | null) => void }) => {
   const [startPoint, setStartPoint] = useState<LatLng | null>(null);
   const [bounds, setBounds] = useState<LatLngBounds | null>(null);
   
   useMapEvents({
     click(e) {
-      const L = window.L;
+      const L = (window as any).L;
       if (!L) return;
       
       if (!startPoint) {
@@ -28,52 +28,48 @@ function DrawRectangleHandler({ onAreaSelect }: { onAreaSelect: (bounds: LatLngB
     },
   });
 
-  if (!bounds) return null;
-  
-  return <Rectangle bounds={bounds} pathOptions={{ color: '#3b82f6', weight: 2 }} />;
-}
+  return bounds ? <Rectangle bounds={bounds} pathOptions={{ color: '#3b82f6', weight: 2 }} /> : null;
+};
 
-function LocationHandler() {
+const LocationComponent = () => {
   const map = useMap();
 
   useEffect(() => {
     if (!map) return;
     
-    map.locate({ setView: true, maxZoom: 10 });
-    
-    function onLocationFound(e: any) {
+    const handleLocationFound = (e: any) => {
       console.log('Location found:', e.latlng);
-    }
+    };
     
-    map.on('locationfound', onLocationFound);
+    map.locate({ setView: true, maxZoom: 10 });
+    map.on('locationfound', handleLocationFound);
     
     return () => {
-      map.off('locationfound', onLocationFound);
+      map.off('locationfound', handleLocationFound);
     };
   }, [map]);
 
   return null;
-}
+};
 
-export default function WeatherMap({ onAreaSelect }: WeatherMapProps) {
-  const [key, setKey] = useState(0);
-
+const WeatherMap = ({ onAreaSelect }: WeatherMapProps) => {
   return (
     <Card className="h-full overflow-hidden">
       <MapContainer
-        key={key}
         center={[20, 0]}
         zoom={2}
         scrollWheelZoom={true}
         style={{ height: '100%', width: '100%', minHeight: '500px' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <LocationHandler />
-        <DrawRectangleHandler onAreaSelect={onAreaSelect} />
+        <LocationComponent />
+        <DrawRectangleComponent onAreaSelect={onAreaSelect} />
       </MapContainer>
     </Card>
   );
-}
+};
+
+export default WeatherMap;
